@@ -5,7 +5,7 @@ set -e
 _this_script_path="$(readlink -f "${BASH_SOURCE[0]}")"
 _script_name=$(basename "${_this_script_path}")
 
-function sync_nidps_results() {
+function sync_results() {
 
     function usage() {
         echo ""
@@ -20,7 +20,7 @@ function sync_nidps_results() {
         echo "        [--subject-id=<SUBJECT_ID>] \\"
         echo "        --drv-of-subjects-on-proc=<PROCESSED_FOLDER_PATH> \\"
         echo "        --drv-of-subjects-on-share=<SHARE_FOLDER_PATH> \\"
-        echo "        [--mode=<NIDPS|DIFFUSION|LGI>] \\"
+        echo "        [--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>] \\"
         echo "        [--keep-structure] \\"
         echo "        [--run] \\"
         echo "        [--help]"
@@ -37,8 +37,10 @@ function sync_nidps_results() {
         echo "    --subject-id                   被験者ID。指定しない場合は全被験者を処理"
         echo "    --mode                         同期モードを指定"
         echo "                                   NIDPS: \${SUBJECT_ID}/NIDPs/ を同期"
-        echo "                                   DIFFUSION: 指定のDiffusion関連データを同期"
+        echo "                                   DMRI: 指定のdMRI関連データを同期"
+        echo "                                   SSMRI_NIDP: 指定のstructural MRI NIDPを同期"
         echo "                                   LGI: 指定のLGI関連ファイルを同期"
+        echo "                                   ALL: NIDPS, DMRI, SSMRI_NIDP, LGI を順に同期"
         echo "    --keep-structure               同期先でも --drv-of-subjects-on-proc 以下の構造を保持"
         echo "    --run                          実際の同期を実行（省略時は dry-run）"
         echo "    --help, -h                     このヘルプを表示"
@@ -46,10 +48,57 @@ function sync_nidps_results() {
         echo "SYNC TARGET:"
         echo "    * --mode=NIDPS"
         echo "      \${SUBJECT_ID}/NIDPs/"
-        echo "    * --mode=DIFFUSION"
+        echo "    * --mode=DMRI"
         echo "      \${SUBJECT_ID}/T1w/Diffusion/"
         echo "      \${SUBJECT_ID}/Diffusion/"
         echo "      \${SUBJECT_ID}/T1w/T1w_acpc_dc_restore_1.50.nii.gz"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_DataSNR_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_DataSNR_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_DataSNR_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_DataSNR_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FA_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FA_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FA_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FA_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FICVF_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FICVF_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FICVF_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FICVF_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Kappa_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Kappa_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Kappa_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Kappa_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MD_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MD_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MD_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MD_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_ODI_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_ODI_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_ODI_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_ODI_MSMSulc.pscalar.nii"
+        echo "    * --mode=SSMRI_NIDP"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CT_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CT_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CT_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CT_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CV_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CV_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CV_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CV_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MM_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MM_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MM_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_MM_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_NSA_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_NSA_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_NSA_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_NSA_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_SA_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_SA_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_SA_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_SA_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_SubV.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_aseg.stats"
         echo "    * --mode=LGI"
         echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_LGI_MSMSulc.csv"
         echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_LGI_MSMAll.csv"
@@ -57,6 +106,8 @@ function sync_nidps_results() {
         echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/rh.mean.pial_lgi.stats"
         echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/lh.aparc.pial_lgi.stats"
         echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/rh.aparc.pial_lgi.stats"
+        echo "    * --mode=ALL"
+        echo "      上記4モードすべて"
         echo ""
         echo "EXAMPLES:"
         echo "    ${_script_name} \\"
@@ -67,7 +118,7 @@ function sync_nidps_results() {
         echo "    ${_script_name} \\"
         echo "        --drv-of-subjects-on-proc=/mnt/data2/iueda/5_18/derivatives/HCPpipeline \\"
         echo "        --drv-of-subjects-on-share=/mnt/qnapdata2/mri2024/mri4/ext5_18 \\"
-        echo "        --mode=DIFFUSION \\"
+        echo "        --mode=DMRI \\"
         echo "        --run"
         echo ""
         echo "NOTE:"
@@ -215,7 +266,7 @@ function sync_nidps_results() {
         return 0
     }
 
-    function sync_diffusion_mode() {
+    function sync_dmri_mode() {
         local _subject_id=$1
         local _drv_of_subjects_on_proc=$2
         local _dest_root=$3
@@ -228,7 +279,7 @@ function sync_nidps_results() {
         echo ""
         echo "=========================================="
         echo "被験者ID: ${_subject_id}"
-        echo "モード: DIFFUSION"
+        echo "モード: DMRI"
         echo "同期元: ${_subject_src}"
         echo "同期先: ${_subject_dest}"
         echo "=========================================="
@@ -241,38 +292,66 @@ function sync_nidps_results() {
             return 1
         fi
 
+        local _dir_targets=()
+        local _file_targets=()
+        local _target
         local _src
         local _dst
 
-        _src="${_subject_src}/T1w/Diffusion"
-        _dst="${_subject_dest}/T1w/Diffusion"
-        if [ -d "${_src}" ]; then
-            echo "同期対象: ${_src}"
-            run_rsync "${_src}" "${_dst}" "${_run_mode}" "true"
-            _found_any="true"
-        else
-            echo "欠如: ${_src}"
-        fi
+        _dir_targets+=("T1w/Diffusion")
+        _dir_targets+=("Diffusion")
 
-        _src="${_subject_src}/Diffusion"
-        _dst="${_subject_dest}/Diffusion"
-        if [ -d "${_src}" ]; then
-            echo "同期対象: ${_src}"
-            run_rsync "${_src}" "${_dst}" "${_run_mode}" "true"
-            _found_any="true"
-        else
-            echo "欠如: ${_src}"
-        fi
+        _file_targets+=("T1w/T1w_acpc_dc_restore_1.50.nii.gz")
+        _file_targets+=("NIDPs/${_subject_id}_DataSNR_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_DataSNR_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_DataSNR_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_DataSNR_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_FA_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_FA_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_FA_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_FA_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_FICVF_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_FICVF_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_FICVF_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_FICVF_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_Kappa_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Kappa_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_Kappa_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Kappa_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_MD_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_MD_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_MD_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_MD_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_ODI_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_ODI_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_ODI_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_ODI_MSMSulc.pscalar.nii")
 
-        _src="${_subject_src}/T1w/T1w_acpc_dc_restore_1.50.nii.gz"
-        _dst="${_subject_dest}/T1w/T1w_acpc_dc_restore_1.50.nii.gz"
-        if [ -f "${_src}" ]; then
-            echo "同期対象: ${_src}"
-            run_rsync "${_src}" "${_dst}" "${_run_mode}" "false"
-            _found_any="true"
-        else
-            echo "欠如: ${_src}"
-        fi
+        for _target in "${_dir_targets[@]}"; do
+            _src="${_subject_src}/${_target}"
+            _dst="${_subject_dest}/${_target}"
+
+            if [ -d "${_src}" ]; then
+                echo "同期対象: ${_src}"
+                run_rsync "${_src}" "${_dst}" "${_run_mode}" "true"
+                _found_any="true"
+            else
+                echo "欠如: ${_src}"
+            fi
+        done
+
+        for _target in "${_file_targets[@]}"; do
+            _src="${_subject_src}/${_target}"
+            _dst="${_subject_dest}/${_target}"
+
+            if [ -f "${_src}" ]; then
+                echo "同期対象: ${_src}"
+                run_rsync "${_src}" "${_dst}" "${_run_mode}" "false"
+                _found_any="true"
+            else
+                echo "欠如: ${_src}"
+            fi
+        done
 
         if [ "${_found_any}" != "true" ]; then
             echo "警告: 同期対象が1つも見つかりませんでした。"
@@ -347,6 +426,84 @@ function sync_nidps_results() {
         return 0
     }
 
+    function sync_ssmri_nidp_mode() {
+        local _subject_id=$1
+        local _drv_of_subjects_on_proc=$2
+        local _dest_root=$3
+        local _run_mode=$4
+
+        local _subject_src="${_drv_of_subjects_on_proc}/${_subject_id}"
+        local _subject_dest="${_dest_root}/${_subject_id}"
+        local _found_any="false"
+
+        echo ""
+        echo "=========================================="
+        echo "被験者ID: ${_subject_id}"
+        echo "モード: SSMRI_NIDP"
+        echo "同期元: ${_subject_src}"
+        echo "同期先: ${_subject_dest}"
+        echo "=========================================="
+        echo ""
+
+        if [ ! -d "${_subject_src}" ]; then
+            echo "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
+            echo "スキップします。"
+            echo ""
+            return 1
+        fi
+
+        local _targets=()
+        local _target
+        local _src
+        local _dst
+
+        _targets+=("NIDPs/${_subject_id}_CT_MSMAll.csv")
+        _targets+=("NIDPs/${_subject_id}_CT_MSMAll.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_CT_MSMSulc.csv")
+        _targets+=("NIDPs/${_subject_id}_CT_MSMSulc.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_CV_MSMAll.csv")
+        _targets+=("NIDPs/${_subject_id}_CV_MSMAll.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_CV_MSMSulc.csv")
+        _targets+=("NIDPs/${_subject_id}_CV_MSMSulc.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_MM_MSMAll.csv")
+        _targets+=("NIDPs/${_subject_id}_MM_MSMAll.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_MM_MSMSulc.csv")
+        _targets+=("NIDPs/${_subject_id}_MM_MSMSulc.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_NSA_MSMAll.csv")
+        _targets+=("NIDPs/${_subject_id}_NSA_MSMAll.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_NSA_MSMSulc.csv")
+        _targets+=("NIDPs/${_subject_id}_NSA_MSMSulc.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_SA_MSMAll.csv")
+        _targets+=("NIDPs/${_subject_id}_SA_MSMAll.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_SA_MSMSulc.csv")
+        _targets+=("NIDPs/${_subject_id}_SA_MSMSulc.pscalar.nii")
+        _targets+=("NIDPs/${_subject_id}_SubV.csv")
+        _targets+=("NIDPs/${_subject_id}_aseg.stats")
+
+        for _target in "${_targets[@]}"; do
+            _src="${_subject_src}/${_target}"
+            _dst="${_subject_dest}/${_target}"
+
+            if [ -f "${_src}" ]; then
+                echo "同期対象: ${_src}"
+                run_rsync "${_src}" "${_dst}" "${_run_mode}" "false"
+                _found_any="true"
+            else
+                echo "欠如: ${_src}"
+            fi
+        done
+
+        if [ "${_found_any}" != "true" ]; then
+            echo "警告: 同期対象が1つも見つかりませんでした。"
+            echo ""
+            return 1
+        fi
+
+        echo "同期完了: ${_subject_id}"
+        echo ""
+        return 0
+    }
+
     function sync_single_subject() {
         local _subject_id=$1
         local _drv_of_subjects_on_proc=$2
@@ -357,15 +514,28 @@ function sync_nidps_results() {
             NIDPS)
                 sync_nidps_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
                 ;;
-            DIFFUSION)
-                sync_diffusion_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
+            DMRI)
+                sync_dmri_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
+                ;;
+            SSMRI_NIDP)
+                sync_ssmri_nidp_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
                 ;;
             LGI)
                 sync_lgi_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
                 ;;
+            ALL)
+                local _status=0
+
+                sync_nidps_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
+                sync_dmri_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
+                sync_ssmri_nidp_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
+                sync_lgi_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
+
+                return ${_status}
+                ;;
             *)
                 echo "エラー: 不正な --mode です: ${mode}"
-                echo "       使用可能な値: NIDPS, DIFFUSION, LGI"
+                echo "       使用可能な値: NIDPS, DMRI, SSMRI_NIDP, LGI, ALL"
                 return 1
                 ;;
         esac
@@ -389,8 +559,8 @@ function sync_nidps_results() {
         exit 1
     fi
 
-    if [[ "${mode}" != "NIDPS" && "${mode}" != "DIFFUSION" && "${mode}" != "LGI" ]]; then
-        echo "エラー: --mode には NIDPS, DIFFUSION, LGI のいずれかを指定してください。"
+    if [[ "${mode}" != "NIDPS" && "${mode}" != "DMRI" && "${mode}" != "SSMRI_NIDP" && "${mode}" != "LGI" && "${mode}" != "ALL" ]]; then
+        echo "エラー: --mode には NIDPS, DMRI, SSMRI_NIDP, LGI, ALL のいずれかを指定してください。"
         usage
         exit 1
     fi
@@ -478,4 +648,4 @@ function sync_nidps_results() {
     echo "${_script_name} completed"
 }
 
-sync_nidps_results "$@"
+sync_results "$@"
