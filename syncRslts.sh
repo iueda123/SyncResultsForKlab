@@ -106,6 +106,10 @@ function sync_results() {
         echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/rh.mean.pial_lgi.stats"
         echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/lh.aparc.pial_lgi.stats"
         echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/rh.aparc.pial_lgi.stats"
+        echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/surf/lh.pial_lgi"
+        echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/surf/rh.pial_lgi"
+        echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/lh.aparc.a2009s.pial_lgi.stats"
+        echo "      \${SUBJECT_ID}/T1w/\${SUBJECT_ID}/stats/rh.aparc.a2009s.pial_lgi.stats"
         echo "    * --mode=ALL"
         echo "      上記4モードすべて"
         echo ""
@@ -401,6 +405,10 @@ function sync_results() {
         _targets+=("T1w/${_subject_id}/stats/rh.mean.pial_lgi.stats")
         _targets+=("T1w/${_subject_id}/stats/lh.aparc.pial_lgi.stats")
         _targets+=("T1w/${_subject_id}/stats/rh.aparc.pial_lgi.stats")
+        _targets+=("T1w/${_subject_id}/surf/lh.pial_lgi")
+        _targets+=("T1w/${_subject_id}/surf/rh.pial_lgi")
+        _targets+=("T1w/${_subject_id}/stats/lh.aparc.a2009s.pial_lgi.stats")
+        _targets+=("T1w/${_subject_id}/stats/rh.aparc.a2009s.pial_lgi.stats")
 
         for _target in "${_targets[@]}"; do
             _src="${_subject_src}/${_target}"
