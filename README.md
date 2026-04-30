@@ -79,8 +79,8 @@
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-proc=/path/to/proc_subjects_root \
-  --drv-of-subjects-on-share=/path/to/share_subjects_root
+  --drv-of-subjects-on-src=/path/to/proc_subjects_root \
+  --drv-of-subjects-on-dst=/path/to/share_subjects_root
 ```
 
 単一被験者:
@@ -88,8 +88,8 @@
 ```bash
 ./syncRslts.sh \
   --subject-id=sub-K2009231730 \
-  --drv-of-subjects-on-proc=/path/to/proc_subjects_root \
-  --drv-of-subjects-on-share=/path/to/share_subjects_root \
+  --drv-of-subjects-on-src=/path/to/proc_subjects_root \
+  --drv-of-subjects-on-dst=/path/to/share_subjects_root \
   --mode=LGI \
   --run
 ```
@@ -98,8 +98,8 @@
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-proc=/path/to/proc_subjects_root \
-  --drv-of-subjects-on-share=/path/to/share_subjects_root \
+  --drv-of-subjects-on-src=/path/to/proc_subjects_root \
+  --drv-of-subjects-on-dst=/path/to/share_subjects_root \
   --mode=ALL \
   --run
 ```
@@ -108,14 +108,14 @@
 
 - `--subject-id=<SUBJECT_ID>`
   - 指定時は単一被験者だけを処理
-- `--drv-of-subjects-on-proc=<PATH>`
+- `--drv-of-subjects-on-src=<PATH>`
   - 同期元の Subjects root
-- `--drv-of-subjects-on-share=<PATH>`
+- `--drv-of-subjects-on-dst=<PATH>`
   - 同期先の Subjects root
 - `--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>`
   - 同期対象を指定
 - `--keep-structure`
-  - `--drv-of-subjects-on-proc` 以下のパス構造を共有先でも保持
+  - `--drv-of-subjects-on-src` 以下のパス構造を共有先でも保持
 - `--run`
   - dry-run ではなく実際に同期
 - `--help`

@@ -18,8 +18,8 @@ function sync_results() {
         echo "USAGE:"
         echo "    ${_script_name} \\"
         echo "        [--subject-id=<SUBJECT_ID>] \\"
-        echo "        --drv-of-subjects-on-proc=<PROCESSED_FOLDER_PATH> \\"
-        echo "        --drv-of-subjects-on-share=<SHARE_FOLDER_PATH> \\"
+        echo "        --drv-of-subjects-on-src=<SOURCE_FOLDER_PATH> \\"
+        echo "        --drv-of-subjects-on-dst=<DESTINATION_FOLDER_PATH> \\"
         echo "        [--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>] \\"
         echo "        [--keep-structure] \\"
         echo "        [--run] \\"
@@ -30,8 +30,8 @@ function sync_results() {
         echo "    デフォルトでは dry-run で動作し、--run オプションで実際の同期を実行します。"
         echo ""
         echo "REQUIRED OPTIONS:"
-        echo "    --drv-of-subjects-on-proc      処理サーバー上の SubjectsRoot パス（同期元）"
-        echo "    --drv-of-subjects-on-share     共有サーバー上の SubjectsRoot パス（同期先）"
+        echo "    --drv-of-subjects-on-src       処理サーバー上の SubjectsRoot パス（同期元）"
+        echo "    --drv-of-subjects-on-dst       共有サーバー上の SubjectsRoot パス（同期先）"
         echo ""
         echo "OPTIONAL OPTIONS:"
         echo "    --subject-id                   被験者ID。指定しない場合は全被験者を処理"
@@ -41,7 +41,7 @@ function sync_results() {
         echo "                                   SSMRI_NIDP: 指定のstructural MRI NIDPを同期"
         echo "                                   LGI: 指定のLGI関連ファイルを同期"
         echo "                                   ALL: NIDPS, DMRI, SSMRI_NIDP, LGI を順に同期"
-        echo "    --keep-structure               同期先でも --drv-of-subjects-on-proc 以下の構造を保持"
+        echo "    --keep-structure               同期先でも --drv-of-subjects-on-src 以下の構造を保持"
         echo "    --run                          実際の同期を実行（省略時は dry-run）"
         echo "    --help, -h                     このヘルプを表示"
         echo ""
@@ -116,12 +116,12 @@ function sync_results() {
         echo "EXAMPLES:"
         echo "    ${_script_name} \\"
         echo "        --subject-id=sub-K2009231730 \\"
-        echo "        --drv-of-subjects-on-proc=/mnt/data2/iueda/5_18/derivatives/HCPpipeline \\"
-        echo "        --drv-of-subjects-on-share=/mnt/qnapdata2/mri2024/mri4/ext5_18"
+        echo "        --drv-of-subjects-on-src=/mnt/data2/iueda/5_18/derivatives/HCPpipeline \\"
+        echo "        --drv-of-subjects-on-dst=/mnt/qnapdata2/mri2024/mri4/ext5_18"
         echo ""
         echo "    ${_script_name} \\"
-        echo "        --drv-of-subjects-on-proc=/mnt/data2/iueda/5_18/derivatives/HCPpipeline \\"
-        echo "        --drv-of-subjects-on-share=/mnt/qnapdata2/mri2024/mri4/ext5_18 \\"
+        echo "        --drv-of-subjects-on-src=/mnt/data2/iueda/5_18/derivatives/HCPpipeline \\"
+        echo "        --drv-of-subjects-on-dst=/mnt/qnapdata2/mri2024/mri4/ext5_18 \\"
         echo "        --mode=DMRI \\"
         echo "        --run"
         echo ""
@@ -141,8 +141,8 @@ function sync_results() {
 
         unset help
         unset subject_id
-        unset drv_of_subjects_on_proc
-        unset drv_of_subjects_on_share
+        unset drv_of_subjects_on_src
+        unset drv_of_subjects_on_dst
         unset keep_structure
 
         local _index=0
@@ -162,11 +162,11 @@ function sync_results() {
                 --mode=*)
                     mode=${_argument#*=}
                     ;;
-                --drv-of-subjects-on-proc=*)
-                    drv_of_subjects_on_proc=${_argument#*=}
+                --drv-of-subjects-on-src=*)
+                    drv_of_subjects_on_src=${_argument#*=}
                     ;;
-                --drv-of-subjects-on-share=*)
-                    drv_of_subjects_on_share=${_argument#*=}
+                --drv-of-subjects-on-dst=*)
+                    drv_of_subjects_on_dst=${_argument#*=}
                     ;;
                 --keep-structure)
                     keep_structure="true"
@@ -188,20 +188,20 @@ function sync_results() {
     }
 
     function build_dest_root() {
-        local _drv_of_subjects_on_proc=$1
-        local _drv_of_subjects_on_share=$2
+        local _drv_of_subjects_on_src=$1
+        local _drv_of_subjects_on_dst=$2
 
         if [[ "${keep_structure}" == "true" ]]; then
             local _proc_subpath
-            _proc_subpath=$(echo "${_drv_of_subjects_on_proc}" | sed 's#^/mnt/[^/]*/[^/]*/##')
+            _proc_subpath=$(echo "${_drv_of_subjects_on_src}" | sed 's#^/mnt/[^/]*/[^/]*/##')
 
-            if [[ -n "${_proc_subpath}" && "${_proc_subpath}" != "${_drv_of_subjects_on_proc}" ]]; then
-                echo "${_drv_of_subjects_on_share}/${_proc_subpath}"
+            if [[ -n "${_proc_subpath}" && "${_proc_subpath}" != "${_drv_of_subjects_on_src}" ]]; then
+                echo "${_drv_of_subjects_on_dst}/${_proc_subpath}"
             else
-                echo "${_drv_of_subjects_on_share}"
+                echo "${_drv_of_subjects_on_dst}"
             fi
         else
-            echo "${_drv_of_subjects_on_share}"
+            echo "${_drv_of_subjects_on_dst}"
         fi
     }
 
@@ -232,11 +232,11 @@ function sync_results() {
 
     function sync_nidps_mode() {
         local _subject_id=$1
-        local _drv_of_subjects_on_proc=$2
+        local _drv_of_subjects_on_src=$2
         local _dest_root=$3
         local _run_mode=$4
 
-        local _subject_src="${_drv_of_subjects_on_proc}/${_subject_id}"
+        local _subject_src="${_drv_of_subjects_on_src}/${_subject_id}"
         local _src_nidps="${_subject_src}/NIDPs"
         local _subject_dest="${_dest_root}/${_subject_id}"
         local _dest_nidps="${_subject_dest}/NIDPs"
@@ -272,11 +272,11 @@ function sync_results() {
 
     function sync_dmri_mode() {
         local _subject_id=$1
-        local _drv_of_subjects_on_proc=$2
+        local _drv_of_subjects_on_src=$2
         local _dest_root=$3
         local _run_mode=$4
 
-        local _subject_src="${_drv_of_subjects_on_proc}/${_subject_id}"
+        local _subject_src="${_drv_of_subjects_on_src}/${_subject_id}"
         local _subject_dest="${_dest_root}/${_subject_id}"
         local _found_any="false"
 
@@ -370,11 +370,11 @@ function sync_results() {
 
     function sync_lgi_mode() {
         local _subject_id=$1
-        local _drv_of_subjects_on_proc=$2
+        local _drv_of_subjects_on_src=$2
         local _dest_root=$3
         local _run_mode=$4
 
-        local _subject_src="${_drv_of_subjects_on_proc}/${_subject_id}"
+        local _subject_src="${_drv_of_subjects_on_src}/${_subject_id}"
         local _subject_dest="${_dest_root}/${_subject_id}"
         local _found_any="false"
 
@@ -436,11 +436,11 @@ function sync_results() {
 
     function sync_ssmri_nidp_mode() {
         local _subject_id=$1
-        local _drv_of_subjects_on_proc=$2
+        local _drv_of_subjects_on_src=$2
         local _dest_root=$3
         local _run_mode=$4
 
-        local _subject_src="${_drv_of_subjects_on_proc}/${_subject_id}"
+        local _subject_src="${_drv_of_subjects_on_src}/${_subject_id}"
         local _subject_dest="${_dest_root}/${_subject_id}"
         local _found_any="false"
 
@@ -514,30 +514,30 @@ function sync_results() {
 
     function sync_single_subject() {
         local _subject_id=$1
-        local _drv_of_subjects_on_proc=$2
+        local _drv_of_subjects_on_src=$2
         local _dest_root=$3
         local _run_mode=$4
 
         case "${mode}" in
             NIDPS)
-                sync_nidps_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
+                sync_nidps_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}"
                 ;;
             DMRI)
-                sync_dmri_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
+                sync_dmri_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}"
                 ;;
             SSMRI_NIDP)
-                sync_ssmri_nidp_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
+                sync_ssmri_nidp_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}"
                 ;;
             LGI)
-                sync_lgi_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}"
+                sync_lgi_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}"
                 ;;
             ALL)
                 local _status=0
 
-                sync_nidps_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
-                sync_dmri_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
-                sync_ssmri_nidp_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
-                sync_lgi_mode "${_subject_id}" "${_drv_of_subjects_on_proc}" "${_dest_root}" "${_run_mode}" || _status=1
+                sync_nidps_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}" || _status=1
+                sync_dmri_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}" || _status=1
+                sync_ssmri_nidp_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}" || _status=1
+                sync_lgi_mode "${_subject_id}" "${_drv_of_subjects_on_src}" "${_dest_root}" "${_run_mode}" || _status=1
 
                 return ${_status}
                 ;;
@@ -555,14 +555,14 @@ function sync_results() {
         usage
     fi
 
-    if [ -z "${drv_of_subjects_on_proc}" ]; then
-        echo "エラー: --drv-of-subjects-on-proc が指定されていません。"
+    if [ -z "${drv_of_subjects_on_src}" ]; then
+        echo "エラー: --drv-of-subjects-on-src が指定されていません。"
         usage
         exit 1
     fi
 
-    if [ -z "${drv_of_subjects_on_share}" ]; then
-        echo "エラー: --drv-of-subjects-on-share が指定されていません。"
+    if [ -z "${drv_of_subjects_on_dst}" ]; then
+        echo "エラー: --drv-of-subjects-on-dst が指定されていません。"
         usage
         exit 1
     fi
@@ -574,7 +574,7 @@ function sync_results() {
     fi
 
     local dest_root
-    dest_root=$(build_dest_root "${drv_of_subjects_on_proc}" "${drv_of_subjects_on_share}")
+    dest_root=$(build_dest_root "${drv_of_subjects_on_src}" "${drv_of_subjects_on_dst}")
 
     if [ "${run_mode}" == "true" ]; then
         echo ""
@@ -588,7 +588,7 @@ function sync_results() {
     echo ""
 
     echo "同期設定:"
-    echo "  同期元: ${drv_of_subjects_on_proc}"
+    echo "  同期元: ${drv_of_subjects_on_src}"
     echo "  同期先: ${dest_root}"
     echo "  モード: ${mode}"
     if [[ "${keep_structure}" == "true" ]]; then
@@ -600,19 +600,19 @@ function sync_results() {
         echo "=== 単一被験者モード ==="
         echo "被験者ID: ${subject_id}"
         echo ""
-        sync_single_subject "${subject_id}" "${drv_of_subjects_on_proc}" "${dest_root}" "${run_mode}"
+        sync_single_subject "${subject_id}" "${drv_of_subjects_on_src}" "${dest_root}" "${run_mode}"
     else
         echo "=== 全被験者モード ==="
         echo ""
 
-        if [ ! -d "${drv_of_subjects_on_proc}" ]; then
-            echo "エラー: 同期元ディレクトリが見つかりません: ${drv_of_subjects_on_proc}"
+        if [ ! -d "${drv_of_subjects_on_src}" ]; then
+            echo "エラー: 同期元ディレクトリが見つかりません: ${drv_of_subjects_on_src}"
             exit 1
         fi
 
         local _subject_list=()
         local _dir
-        for _dir in "${drv_of_subjects_on_proc}"/*/; do
+        for _dir in "${drv_of_subjects_on_src}"/*/; do
             if [ -d "${_dir}" ]; then
                 _subject_list+=("$(basename "${_dir}")")
             fi
@@ -636,7 +636,7 @@ function sync_results() {
             _processed_count=$(( _processed_count + 1 ))
             echo "進捗: ${_processed_count}/${_total_subjects}"
 
-            if sync_single_subject "${_subj}" "${drv_of_subjects_on_proc}" "${dest_root}" "${run_mode}"; then
+            if sync_single_subject "${_subj}" "${drv_of_subjects_on_src}" "${dest_root}" "${run_mode}"; then
                 _success_count=$(( _success_count + 1 ))
             else
                 _failed_count=$(( _failed_count + 1 ))
