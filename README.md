@@ -77,30 +77,237 @@
 
 ## 使い方
 
+### dry-run（デフォルト）
+
+`--run` を省くと常に dry-run になります。転送前の確認に使います。
+
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc_subjects_root \
-  --drv-of-subjects-on-dst=/path/to/share_subjects_root
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=NIDPS
+```
+
+---
+
+### NIDPS
+
+NIDPs フォルダ全体を同期します。
+
+全被験者:
+
+```bash
+./syncRslts.sh \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=NIDPS \
+  --run
 ```
 
 単一被験者:
 
 ```bash
 ./syncRslts.sh \
-  --subject-id=sub-K2009231730 \
-  --drv-of-subjects-on-src=/path/to/proc_subjects_root \
-  --drv-of-subjects-on-dst=/path/to/share_subjects_root \
+  --subject-id=sub-EXAMPLE001 \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=NIDPS \
+  --run
+```
+
+複数被験者をリストで指定:
+
+```bash
+subjects=()
+subjects+=("sub-EXAMPLE001")
+subjects+=("sub-EXAMPLE002")
+subjects+=("sub-EXAMPLE003")
+
+for sbjid in "${subjects[@]}"; do
+  ./syncRslts.sh \
+    --subject-id="${sbjid}" \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --mode=NIDPS \
+    --run
+done
+```
+
+---
+
+### DMRI
+
+拡散 MRI の成果物（Diffusion/ フォルダ、T1w_acpc_dc_restore、dMRI 系 NIDPs）を同期します。
+
+全被験者:
+
+```bash
+./syncRslts.sh \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=DMRI \
+  --run
+```
+
+単一被験者:
+
+```bash
+./syncRslts.sh \
+  --subject-id=sub-EXAMPLE001 \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=DMRI \
+  --run
+```
+
+複数被験者をリストで指定:
+
+```bash
+subjects=()
+subjects+=("sub-EXAMPLE001")
+subjects+=("sub-EXAMPLE002")
+subjects+=("sub-EXAMPLE003")
+
+for sbjid in "${subjects[@]}"; do
+  ./syncRslts.sh \
+    --subject-id="${sbjid}" \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --mode=DMRI \
+    --run
+done
+```
+
+---
+
+### SSMRI_NIDP
+
+構造 MRI の NIDPs（皮質厚・体積・面積など）を同期します。
+
+全被験者:
+
+```bash
+./syncRslts.sh \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=SSMRI_NIDP \
+  --run
+```
+
+単一被験者:
+
+```bash
+./syncRslts.sh \
+  --subject-id=sub-EXAMPLE001 \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=SSMRI_NIDP \
+  --run
+```
+
+複数被験者をリストで指定:
+
+```bash
+subjects=()
+subjects+=("sub-EXAMPLE001")
+subjects+=("sub-EXAMPLE002")
+subjects+=("sub-EXAMPLE003")
+
+for sbjid in "${subjects[@]}"; do
+  ./syncRslts.sh \
+    --subject-id="${sbjid}" \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --mode=SSMRI_NIDP \
+    --run
+done
+```
+
+---
+
+### LGI
+
+局所脳回指数（LGI）の統計ファイルとサーフェスを同期します。
+
+全被験者:
+
+```bash
+./syncRslts.sh \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
   --mode=LGI \
   --run
 ```
 
-全モードを一括実行:
+単一被験者:
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc_subjects_root \
-  --drv-of-subjects-on-dst=/path/to/share_subjects_root \
+  --subject-id=sub-EXAMPLE001 \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=LGI \
+  --run
+```
+
+複数被験者をリストで指定:
+
+```bash
+subjects=()
+subjects+=("sub-EXAMPLE001")
+subjects+=("sub-EXAMPLE002")
+subjects+=("sub-EXAMPLE003")
+
+for sbjid in "${subjects[@]}"; do
+  ./syncRslts.sh \
+    --subject-id="${sbjid}" \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --mode=LGI \
+    --run
+done
+```
+
+---
+
+### ALL
+
+NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
+
+全被験者:
+
+```bash
+./syncRslts.sh \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
   --mode=ALL \
+  --run
+```
+
+単一被験者:
+
+```bash
+./syncRslts.sh \
+  --subject-id=sub-EXAMPLE001 \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --mode=ALL \
+  --run
+```
+
+---
+
+### --keep-structure
+
+同期元のパス構造を同期先でも保持したい場合に使います。\
+`/path/to/proc/project/derivatives` のように渡すと、同期先に `project/derivatives/` 以下として展開されます。
+
+```bash
+./syncRslts.sh \
+  --drv-of-subjects-on-src=/path/to/proc/project/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share \
+  --mode=NIDPS \
+  --keep-structure \
   --run
 ```
 
