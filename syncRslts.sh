@@ -76,6 +76,27 @@ function sync_results() {
         echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_ODI_MSMAll.pscalar.nii"
         echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_ODI_MSMSulc.csv"
         echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_ODI_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_AD_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_AD_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_AD_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_AD_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_RD_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_RD_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_RD_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_RD_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FISO_MSMAll.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FISO_MSMAll.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FISO_MSMSulc.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_FISO_MSMSulc.pscalar.nii"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_DataSNR.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_FA.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_MD.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_AD.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_RD.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_FICVF.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_FISO.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_KAPPA.csv"
+        echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_Subcortical_ODI.csv"
         echo "    * --mode=SSMRI_NIDP"
         echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CT_MSMAll.csv"
         echo "      \${SUBJECT_ID}/NIDPs/\${SUBJECT_ID}_CT_MSMAll.pscalar.nii"
@@ -330,6 +351,27 @@ function sync_results() {
         _file_targets+=("NIDPs/${_subject_id}_ODI_MSMAll.pscalar.nii")
         _file_targets+=("NIDPs/${_subject_id}_ODI_MSMSulc.csv")
         _file_targets+=("NIDPs/${_subject_id}_ODI_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_AD_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_AD_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_AD_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_AD_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_RD_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_RD_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_RD_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_RD_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_FISO_MSMAll.csv")
+        _file_targets+=("NIDPs/${_subject_id}_FISO_MSMAll.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_FISO_MSMSulc.csv")
+        _file_targets+=("NIDPs/${_subject_id}_FISO_MSMSulc.pscalar.nii")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_DataSNR.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_FA.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_MD.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_AD.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_RD.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_FICVF.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_FISO.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_KAPPA.csv")
+        _file_targets+=("NIDPs/${_subject_id}_Subcortical_ODI.csv")
 
         for _target in "${_dir_targets[@]}"; do
             _src="${_subject_src}/${_target}"
