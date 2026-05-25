@@ -21,7 +21,7 @@ function sync_results() {
         echo "        --drv-of-subjects-on-src=<SOURCE_FOLDER_PATH> \\"
         echo "        --drv-of-subjects-on-dst=<DESTINATION_FOLDER_PATH> \\"
         echo "        [--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>] \\"
-        echo "        [--keep-structure] \\"
+        echo "        [--flatten] \\"
         echo "        [--run] \\"
         echo "        [--help]"
         echo ""
@@ -41,7 +41,7 @@ function sync_results() {
         echo "                                   SSMRI_NIDP: 指定のstructural MRI NIDPを同期"
         echo "                                   LGI: 指定のLGI関連ファイルを同期"
         echo "                                   ALL: NIDPS, DMRI, SSMRI_NIDP, LGI を順に同期"
-        echo "    --keep-structure               同期先でも --drv-of-subjects-on-src 以下の構造を保持"
+        echo "    --flatten                      同期先のパス構造を平坦化（デフォルトは構造保持）"
         echo "    --run                          実際の同期を実行（省略時は dry-run）"
         echo "    --help, -h                     このヘルプを表示"
         echo ""
@@ -143,7 +143,7 @@ function sync_results() {
         unset subject_id
         unset drv_of_subjects_on_src
         unset drv_of_subjects_on_dst
-        unset keep_structure
+        keep_structure="true"
 
         local _index=0
         local _num_args=${#_arguments[@]}
@@ -168,8 +168,8 @@ function sync_results() {
                 --drv-of-subjects-on-dst=*)
                     drv_of_subjects_on_dst=${_argument#*=}
                     ;;
-                --keep-structure)
-                    keep_structure="true"
+                --flatten)
+                    keep_structure=""
                     ;;
                 --run)
                     run_mode="true"

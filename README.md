@@ -301,9 +301,9 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
 
 ---
 
-### --keep-structure
+### パス構造の保持（デフォルト動作）
 
-同期元のパス構造を同期先でも保持したい場合に使います。\
+同期元のパス構造を同期先でも保持します（デフォルト）。\
 `/path/to/proc/project/derivatives` のように渡すと、同期先に `project/derivatives/` 以下として展開されます。
 
 ```bash
@@ -311,7 +311,20 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
   --drv-of-subjects-on-src=/path/to/proc/project/derivatives/HCPpipeline \
   --drv-of-subjects-on-dst=/path/to/share \
   --mode=NIDPS \
-  --keep-structure \
+  --run
+```
+
+### --flatten
+
+同期先のパス構造を平坦化したい場合に使います。\
+`--drv-of-subjects-on-dst` 直下に被験者フォルダを配置します。
+
+```bash
+./syncRslts.sh \
+  --drv-of-subjects-on-src=/path/to/proc/project/derivatives/HCPpipeline \
+  --drv-of-subjects-on-dst=/path/to/share \
+  --mode=NIDPS \
+  --flatten \
   --run
 ```
 
@@ -325,8 +338,8 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
   - 同期先の Subjects root
 - `--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>`
   - 同期対象を指定
-- `--keep-structure`
-  - `--drv-of-subjects-on-src` 以下のパス構造を共有先でも保持
+- `--flatten`
+  - 同期先のパス構造を平坦化（デフォルトは構造保持）
 - `--run`
   - dry-run ではなく実際に同期
 - `--help`
