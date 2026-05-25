@@ -72,6 +72,10 @@
   - `${SUBJECT_ID}/T1w/${SUBJECT_ID}/stats/rh.mean.pial_lgi.stats`
   - `${SUBJECT_ID}/T1w/${SUBJECT_ID}/stats/lh.aparc.pial_lgi.stats`
   - `${SUBJECT_ID}/T1w/${SUBJECT_ID}/stats/rh.aparc.pial_lgi.stats`
+  - `${SUBJECT_ID}/T1w/${SUBJECT_ID}/surf/lh.pial_lgi`
+  - `${SUBJECT_ID}/T1w/${SUBJECT_ID}/surf/rh.pial_lgi`
+  - `${SUBJECT_ID}/T1w/${SUBJECT_ID}/stats/lh.aparc.a2009s.pial_lgi.stats`
+  - `${SUBJECT_ID}/T1w/${SUBJECT_ID}/stats/rh.aparc.a2009s.pial_lgi.stats`
 - `ALL`
   - `NIDPS`, `DMRI`, `SSMRI_NIDP`, `LGI` を順に実行
 
