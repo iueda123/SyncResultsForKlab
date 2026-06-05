@@ -314,20 +314,6 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
   --run
 ```
 
-### --flatten
-
-同期先のパス構造を平坦化したい場合に使います。\
-`--drv-of-subjects-on-dst` 直下に被験者フォルダを配置します。
-
-```bash
-./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/project/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share \
-  --mode=NIDPS \
-  --flatten \
-  --run
-```
-
 ## オプション
 
 - `--subject-id=<SUBJECT_ID>`
@@ -338,8 +324,6 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
   - 同期先の Subjects root
 - `--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>`
   - 同期対象を指定
-- `--flatten`
-  - 同期先のパス構造を平坦化（デフォルトは構造保持）
 - `--run`
   - dry-run ではなく実際に同期
 - `--help`
