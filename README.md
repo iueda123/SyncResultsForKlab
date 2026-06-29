@@ -108,8 +108,8 @@
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/2_11/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=NIDPS
 ```
 
@@ -123,8 +123,8 @@ NIDPs フォルダ全体を同期します。
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/2_11/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=NIDPS \
   --run
 ```
@@ -134,8 +134,8 @@ NIDPs フォルダ全体を同期します。
 ```bash
 ./syncRslts.sh \
   --subject-id=sub-EXAMPLE001 \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/2_11/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=NIDPS \
   --run
 ```
@@ -151,8 +151,8 @@ subjects+=("sub-EXAMPLE003")
 for sbjid in "${subjects[@]}"; do
   ./syncRslts.sh \
     --subject-id="${sbjid}" \
-    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives \
+    --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
     --mode=NIDPS \
     --run
 done
@@ -168,8 +168,8 @@ done
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=DMRI \
   --run
 ```
@@ -179,8 +179,8 @@ done
 ```bash
 ./syncRslts.sh \
   --subject-id=sub-EXAMPLE001 \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=DMRI \
   --run
 ```
@@ -196,8 +196,8 @@ subjects+=("sub-EXAMPLE003")
 for sbjid in "${subjects[@]}"; do
   ./syncRslts.sh \
     --subject-id="${sbjid}" \
-    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives \
+    --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
     --mode=DMRI \
     --run
 done
@@ -213,8 +213,8 @@ done
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=SSMRI_NIDP \
   --run
 ```
@@ -224,8 +224,8 @@ done
 ```bash
 ./syncRslts.sh \
   --subject-id=sub-EXAMPLE001 \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=SSMRI_NIDP \
   --run
 ```
@@ -241,8 +241,8 @@ subjects+=("sub-EXAMPLE003")
 for sbjid in "${subjects[@]}"; do
   ./syncRslts.sh \
     --subject-id="${sbjid}" \
-    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives \
+    --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
     --mode=SSMRI_NIDP \
     --run
 done
@@ -258,8 +258,8 @@ done
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=LGI \
   --run
 ```
@@ -269,8 +269,8 @@ done
 ```bash
 ./syncRslts.sh \
   --subject-id=sub-EXAMPLE001 \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=LGI \
   --run
 ```
@@ -286,8 +286,8 @@ subjects+=("sub-EXAMPLE003")
 for sbjid in "${subjects[@]}"; do
   ./syncRslts.sh \
     --subject-id="${sbjid}" \
-    --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-    --drv-of-subjects-on-dst=/path/to/share/ext_project \
+    --drv-of-subjects-on-src=/path/to/proc/derivatives \
+    --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
     --mode=LGI \
     --run
 done
@@ -303,8 +303,8 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=ALL \
   --run
 ```
@@ -314,8 +314,8 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
 ```bash
 ./syncRslts.sh \
   --subject-id=sub-EXAMPLE001 \
-  --drv-of-subjects-on-src=/path/to/proc/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share/ext_project \
+  --drv-of-subjects-on-src=/path/to/proc/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=ALL \
   --run
 ```
@@ -329,8 +329,8 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
 
 ```bash
 ./syncRslts.sh \
-  --drv-of-subjects-on-src=/path/to/proc/project/derivatives/HCPpipeline \
-  --drv-of-subjects-on-dst=/path/to/share \
+  --drv-of-subjects-on-src=/path/to/proc/project/derivatives \
+  --drv-of-subjects-on-dst=/path/to/share/ext2_11 \
   --mode=NIDPS \
   --run
 ```
