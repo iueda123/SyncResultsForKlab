@@ -42,6 +42,27 @@
   - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_ODI_MSMAll.pscalar.nii`
   - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_ODI_MSMSulc.csv`
   - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_ODI_MSMSulc.pscalar.nii`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_AD_MSMAll.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_AD_MSMAll.pscalar.nii`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_AD_MSMSulc.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_AD_MSMSulc.pscalar.nii`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_RD_MSMAll.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_RD_MSMAll.pscalar.nii`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_RD_MSMSulc.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_RD_MSMSulc.pscalar.nii`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_FISO_MSMAll.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_FISO_MSMAll.pscalar.nii`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_FISO_MSMSulc.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_FISO_MSMSulc.pscalar.nii`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_DataSNR.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_FA.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_MD.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_AD.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_RD.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_FICVF.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_FISO.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_KAPPA.csv`
+  - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_Subcortical_ODI.csv`
 - `SSMRI_NIDP`
   - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_CT_MSMAll.csv`
   - `${SUBJECT_ID}/NIDPs/${SUBJECT_ID}_CT_MSMAll.pscalar.nii`
@@ -301,10 +322,10 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
 
 ---
 
-### パス構造の保持（デフォルト動作）
+### 同期先のパス構造
 
-同期元のパス構造を同期先でも保持します（デフォルト）。\
-`/path/to/proc/project/derivatives` のように渡すと、同期先に `project/derivatives/` 以下として展開されます。
+`--drv-of-subjects-on-dst` は同期先の Subjects root として扱われます。\
+同期元の親ディレクトリ構造は同期先に展開されず、同期先には `${SUBJECT_ID}/...` 以下が作られます。
 
 ```bash
 ./syncRslts.sh \
@@ -323,7 +344,7 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
 - `--drv-of-subjects-on-dst=<PATH>`
   - 同期先の Subjects root
 - `--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>`
-  - 同期対象を指定
+  - 同期対象を指定。省略時は `NIDPS`
 - `--run`
   - dry-run ではなく実際に同期
 - `--help`
