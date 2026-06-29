@@ -34,7 +34,7 @@ function sync_results() {
         echo ""
         echo "OPTIONAL OPTIONS:"
         echo "    --subject-id                   被験者ID。指定しない場合は全被験者を処理"
-        echo "    --mode                         同期モードを指定"
+        echo "    --mode                         同期モードを指定（省略時は ALL）"
         echo "                                   NIDPS: \${SUBJECT_ID}/NIDPs/ を同期"
         echo "                                   DMRI: 指定のdMRI関連データを同期"
         echo "                                   SSMRI_NIDP: 指定のstructural MRI NIDPを同期"
@@ -156,7 +156,7 @@ function sync_results() {
         local _arguments=("$@")
 
         run_mode="false"
-        mode="NIDPS"
+        mode="ALL"
 
         unset help
         unset subject_id

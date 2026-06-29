@@ -344,7 +344,7 @@ NIDPS・DMRI・SSMRI_NIDP・LGI を順にまとめて実行します。
 - `--drv-of-subjects-on-dst=<PATH>`
   - 同期先の Subjects root
 - `--mode=<NIDPS|DMRI|SSMRI_NIDP|LGI|ALL>`
-  - 同期対象を指定。省略時は `NIDPS`
+  - 同期対象を指定。省略時は `ALL`
 - `--run`
   - dry-run ではなく実際に同期
 - `--help`
