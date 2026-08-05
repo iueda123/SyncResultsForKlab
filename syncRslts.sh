@@ -29,6 +29,7 @@ function sync_results() {
         echo "    デフォルトでは dry-run で動作し、--run オプションで実際の同期を実行します。"
         echo ""
         echo "REQUIRED OPTIONS:"
+        echo "    --dataset-id                 ログ整理に使用するデータセットID"
         echo "    --drv-of-subjects-on-src       処理サーバー上の SubjectsRoot パス（同期元）"
         echo "    --drv-of-subjects-on-dst       共有サーバー上の SubjectsRoot パス（同期先）"
         echo ""
@@ -159,6 +160,7 @@ function sync_results() {
         mode="NIDPS"
 
         unset help
+        unset dataset_id
         unset subject_id
         unset drv_of_subjects_on_src
         unset drv_of_subjects_on_dst
@@ -176,6 +178,9 @@ function sync_results() {
                     ;;
                 --subject-id=*)
                     subject_id=${_argument#*=}
+                    ;;
+                --dataset-id=*)
+                    dataset_id=${_argument#*=}
                     ;;
                 --mode=*)
                     mode=${_argument#*=}
@@ -573,6 +578,17 @@ function sync_results() {
         usage
     fi
 
+    if [ -z "${dataset_id}" ]; then
+        echo "エラー: --dataset-id が指定されていません。"
+        usage
+        exit 1
+    fi
+
+    if [[ ! "${dataset_id}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo "エラー: 無効な dataset-id: ${dataset_id}"
+        exit 1
+    fi
+
     if [ -z "${drv_of_subjects_on_src}" ]; then
         echo "エラー: --drv-of-subjects-on-src が指定されていません。"
         usage
@@ -592,6 +608,23 @@ function sync_results() {
     fi
 
     local dest_root="${drv_of_subjects_on_dst}"
+    local run_timestamp
+    run_timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
+    local log_subject_id="${subject_id:-all-subjects}"
+    local log_root="$(dirname "${_this_script_path}")/logs/${dataset_id}/${log_subject_id}"
+    local PROC_ID
+    local log_dir
+    mkdir -p "${log_root}"
+    while true; do
+        PROC_ID="$(date +%Y%m%d-%H%M)-$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 5)"
+        log_dir="${log_root}/${PROC_ID}"
+        if mkdir "${log_dir}" 2>/dev/null; then
+            break
+        fi
+    done
+    local log_file_path="${log_dir}/${run_timestamp}_${_script_name}.txt"
+    exec > >(tee -a "${log_file_path}") 2>&1
+    echo "ログファイル: ${log_file_path}"
 
     if [ "${run_mode}" == "true" ]; then
         echo ""
