@@ -609,7 +609,7 @@ function sync_results() {
 
     local dest_root="${drv_of_subjects_on_dst}"
     local run_timestamp
-    run_timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
+    run_timestamp="$(date +%Y-%m-%d_%H-%M-%S-%3N)"
     local log_subject_id="${subject_id:-all-subjects}"
     local log_root="$(dirname "${_this_script_path}")/logs/${dataset_id}/${log_subject_id}"
     local PROC_ID
