@@ -150,7 +150,9 @@ function sync_results() {
         echo " * 同期対象が存在しない被験者はスキップします"
         echo "=================================================================="
         echo ""
-        exit 0
+        # ここで exit しないこと。呼び出し側が終了コードを決める。
+        # 以前は exit 0 していたため、`usage; exit 1` と書かれた引数エラーが
+        # すべて終了コード 0 で終わってしまい、バッチ実行では成功と区別できなかった。
     }
 
     function get_batch_options() {
@@ -255,6 +257,9 @@ function sync_results() {
             echo "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             echo "スキップします。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             return 1
         fi
 
@@ -262,6 +267,9 @@ function sync_results() {
             echo "警告: NIDPs ディレクトリが見つかりません: ${_src_nidps}"
             echo "スキップします。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "警告: NIDPs ディレクトリが見つかりません: ${_src_nidps}"
             return 1
         fi
 
@@ -295,6 +303,9 @@ function sync_results() {
             echo "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             echo "スキップします。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             return 1
         fi
 
@@ -383,6 +394,9 @@ function sync_results() {
         if [ "${_found_any}" != "true" ]; then
             echo "警告: 同期対象が1つも見つかりませんでした。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "同期対象が1つも見つかりませんでした。"
             return 1
         fi
 
@@ -414,6 +428,9 @@ function sync_results() {
             echo "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             echo "スキップします。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             return 1
         fi
 
@@ -449,6 +466,9 @@ function sync_results() {
         if [ "${_found_any}" != "true" ]; then
             echo "警告: 同期対象が1つも見つかりませんでした。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "同期対象が1つも見つかりませんでした。"
             return 1
         fi
 
@@ -480,6 +500,9 @@ function sync_results() {
             echo "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             echo "スキップします。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "警告: 被験者ディレクトリが見つかりません: ${_subject_src}"
             return 1
         fi
 
@@ -527,6 +550,9 @@ function sync_results() {
         if [ "${_found_any}" != "true" ]; then
             echo "警告: 同期対象が1つも見つかりませんでした。"
             echo ""
+            # 異常ではなく「同期すべきものが無かった」結末。set -e により
+            # ここでシェルが終了して完了行に到達しないため、結果を明示しておく。
+            klabRunStatusSetOutcome NOTHING_TO_DO "同期対象が1つも見つかりませんでした。"
             return 1
         fi
 
@@ -576,6 +602,7 @@ function sync_results() {
 
     if [ -n "${help}" ]; then
         usage
+        exit 0
     fi
 
     if [ -z "${dataset_id}" ]; then
@@ -625,6 +652,29 @@ function sync_results() {
     local log_file_path="${log_dir}/${run_timestamp}_${_script_name}.txt"
     exec > >(tee -a "${log_file_path}") 2>&1
     echo "ログファイル: ${log_file_path}"
+
+    # 実行結果を機械可読な JSON（run.started.json / run.status.json）として
+    # PROC_ID ディレクトリに残す。ProcCompletionChecker が完了状況の判定に使う。
+    source "$(dirname "${_this_script_path}")/klab-common/run_status.sh"
+    klabRunStatusInit \
+        --proc-type="SyncRslts" \
+        --script="${_script_name}" \
+        --dataset-id="${dataset_id}" \
+        --subject-id="${log_subject_id}" \
+        --proc-id="${PROC_ID}" \
+        --log-dir="${log_dir}" \
+        --log-file="${log_file_path}"
+    klabRunStatusSetLastStep "${mode}"
+    klabRunStatusOnSignal(){
+        local _signal="$1"
+        set +e
+        klabRunStatusMarkAborted "${_signal}"
+        trap - "${_signal}"
+        kill -s "${_signal}" "$$"
+    }
+    trap 'klabRunStatusOnSignal TERM' TERM
+    trap 'klabRunStatusOnSignal INT' INT
+    trap 'klabRunStatusOnSignal HUP' HUP
 
     if [ "${run_mode}" == "true" ]; then
         echo ""
@@ -698,6 +748,14 @@ function sync_results() {
         echo "失敗/スキップ: ${_failed_count}"
         echo "=========================================="
         echo ""
+    fi
+
+    # ここに到達したということは実行全体としては正常終了である。繰り返し処理の
+    # 途中で 1 件だけ NOTHING_TO_DO を指定した場合に、それが実行全体の結果として
+    # 残らないよう取り消す。
+    klabRunStatusClearOutcome
+    if [ -n "${_total_subjects:-}" ]; then
+        klabRunStatusSetMessage "総被験者数: ${_total_subjects} / 成功: ${_success_count} / 失敗・スキップ: ${_failed_count}"
     fi
 
     echo "${_script_name} completed"
