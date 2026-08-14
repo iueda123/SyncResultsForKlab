@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "procType": "SyncRslts",
+  "repositoryName": "SyncResultsForKlab",
+  "repositoryUrl": "https://github.com/iueda123/SyncResultsForKlab",
+  "mainScript": "syncRslts.sh",
+  "displayName": "SyncResults",
+  "invocation": {
+    "useTsp": false,
+    "commandPrefix": "./",
+    "condaEnv": null
+  },
+  "batchScript": {
+    "fileNamePrefix": "sync",
+    "loopVariable": "sbjid",
+    "supportsAllSubjectsMode": true,
+    "allSubjectsLogSubjectId": "all-subjects",
+    "fileNameIncludesMode": true
+  },
+  "logLayout": "logs/<dataset_id>/<subject_id>/<proc_id>/",
+  "runStatusContract": true,
+  "completionMarkers": [
+    "syncRslts\\.sh completed"
+  ],
+  "nothingToDoMarkers": [
+    "警告: 同期対象が1つも見つかりませんでした。",
+    "スキップします。"
+  ],
+  "perSubjectProgressMarker": "同期完了: (?<subjectId>\\S+)",
+  "estimatedGbPerSubject": 0,
+  "dependsOn": [],
+  "notes": [
+    "--keep-structure は廃止された。パス構造の保持が常時デフォルト動作になった。",
+    "--run を省略すると dry-run。実際の同期には --run が必須。",
+    "--subject-id を省略すると全被験者モードになり、ログは logs/<dataset_id>/all-subjects/<proc_id>/ に出る。"
+  ],
+  "arguments": [
+    {
+      "key": "--dataset-id",
+      "kind": "value",
+      "required": true,
+      "source": "datasetId",
+      "label": "ログ整理用のデータセットID"
+    },
+    {
+      "key": "--subject-id",
+      "kind": "value",
+      "required": false,
+      "source": "loopVariable",
+      "label": "被験者ID",
+      "note": "省略すると全被験者を自動処理する。"
+    },
+    {
+      "key": "--drv-of-subjects-on-src",
+      "kind": "value",
+      "required": true,
+      "source": "path",
+      "label": "同期元 SubjectsRoot",
+      "note": "旧 --drv-of-subjects-on-proc。"
+    },
+    {
+      "key": "--drv-of-subjects-on-dst",
+      "kind": "value",
+      "required": true,
+      "source": "path",
+      "label": "同期先 SubjectsRoot",
+      "note": "旧 --drv-of-subjects-on-share。"
+    },
+    {
+      "key": "--mode",
+      "kind": "value",
+      "required": false,
+      "source": "choice",
+      "choices": ["NIDPS", "DMRI", "SSMRI_NIDP", "LGI", "ALL"],
+      "default": "NIDPS",
+      "label": "同期モード",
+      "fileNameLabels": {
+        "NIDPS": "Nidps",
+        "DMRI": "Dmri",
+        "SSMRI_NIDP": "SsmriNidp",
+        "LGI": "Lgi",
+        "ALL": "All"
+      }
+    },
+    {
+      "key": "--run",
+      "kind": "flag",
+      "required": false,
+      "label": "実際に同期する",
+      "note": "省略時は dry-run。"
+    }
+  ]
+}
