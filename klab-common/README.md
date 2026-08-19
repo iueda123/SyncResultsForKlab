@@ -8,20 +8,34 @@ Klab の処理スクリプト各リポジトリで共通に使うシェル関数
 
 | ファイル | 内容 |
 |:---|:---|
+| `runtime_environment.sh` | 非対話シェル用の共通環境変数と conda シェル機能を初期化する |
 | `run_status.sh` | 1回の処理実行の開始情報と終了結果を機械可読な JSON として残す |
+
+---
+
+## runtime_environment.sh — バッチ実行環境
+
+Batch Script Runner は非対話シェルからバッチスクリプトを起動するため、手動ログイン時の
+`.bashrc` にだけ書かれた設定には依存しない。各 `proc_contract.json` の
+`batchScript.preScriptLines` から本ファイルを `source` し、次を初期化する。
+
+* `/usr/local/ants-2.5.0/bin` が存在するときの `ANTSPATH` と `PATH`
+* `conda activate` に必要な conda のシェル関数
+
+本ファイルは conda 環境を選択しない。必要な環境名は処理ごとに異なるため、該当する
+`proc_contract.json` の `preScriptLines` で `conda activate <env>` を続けて実行する。
 
 ---
 
 ## run_status.sh — 実行結果コントラクト
 
 各処理スクリプトは、実行のたびに `PROC_ID` ディレクトリを作り、その中に人間向けの
-ログを出力している。ここに 2 つの JSON を追加で残す。
+ログを出力している。ここに状態を表す単一の JSON を追加で残す。
 
 ```
 logs/<dataset_id>/<subject_id>/<PROC_ID>/
 ├── <timestamp>_<script>.txt   … 従来の人間向けログ
-├── run.started.json           … 起動直後に書かれる
-└── run.status.json            … 終了時に書かれる
+└── run.status.json            … 起動時は RUNNING、終了時は終端状態
 ```
 
 ### なぜ必要か
@@ -45,6 +59,7 @@ Batch Progress Checker）が文言解析に依存しなくなる。
 ```json
 {
   "schemaVersion": 1,
+  "state": "SUCCESS",
   "procType": "DMriPreproc",
   "script": "run_dmri_preproc_pipelines_for_klab.sh",
   "datasetId": "2_11",
@@ -55,13 +70,12 @@ Batch Progress Checker）が文言解析に依存しなくなる。
   "finishedAt": "2026-08-07T11:50:34+09:00",
   "durationSeconds": 6299,
   "exitCode": 0,
-  "outcome": "SUCCESS",
   "lastStep": "2026-08-07_11-50-34_pushDerivativesToShareServer.sh.txt",
   "message": ""
 }
 ```
 
-`outcome` の意味:
+`state` の意味:
 
 | 値 | 意味 |
 |:---|:---|
@@ -70,10 +84,9 @@ Batch Progress Checker）が文言解析に依存しなくなる。
 | `NOTHING_TO_DO` | 正常に動いたが、処理すべき対象が無かった |
 | `ABORTED` | TERM / INT / HUP を受けて中断した |
 
-`SIGKILL` は捕捉できないため、強制終了された場合は `run.status.json` が残らない。
-その場合は `run.started.json` だけが存在する状態になり、参照側は「開始したが
-終了記録が無い」として扱える。`run.started.json` には `pid` と `host` も記録して
-あるので、必要なら生存確認に使える。
+起動時には `state=RUNNING` を書き、終了時に同じファイルを終端状態で原子的に置換する。
+`SIGKILL` は捕捉できないため、強制終了された場合は `RUNNING` の記録が残る。`pid` と
+`host` も記録してあるので、必要なら生存確認に使える。
 
 ### 組み込み方
 
@@ -109,7 +122,7 @@ trap 'klabRunStatusOnSignal HUP' HUP
 
 | 関数 | 用途 |
 |:---|:---|
-| `klabRunStatusInit` | 記録を開始する。`run.started.json` を書き、EXIT トラップを仕掛ける |
+| `klabRunStatusInit` | 記録を開始する。`state=RUNNING` を書き、EXIT トラップを仕掛ける |
 | `klabRunStatusSetOutcome <outcome> [message]` | 結果を明示する。`NOTHING_TO_DO` を返す経路で使う |
 | `klabRunStatusSetLastStep <step>` | 到達ステップを記録する |
 | `klabRunStatusSetMessage <message>` | 補足メッセージを記録する |

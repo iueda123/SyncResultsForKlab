@@ -3,18 +3,15 @@
 # klab-common/run_status.sh
 #
 # 説明:
-#   1回の処理実行（1 PROC_ID）の開始情報と終了結果を、機械可読な JSON として
+#   1回の処理実行（1 PROC_ID）の状態を、機械可読な単一の JSON として
 #   PROC_ID ディレクトリ直下に残すための共通ライブラリ。
 #
 #     logs/<dataset_id>/<subject_id>/<PROC_ID>/
 #     ├── <timestamp>_<script>.txt   … 従来の人間向けログ
-#     ├── run.started.json           … 起動直後に書かれる
-#     └── run.status.json            … 終了時に EXIT トラップで必ず書かれる
+#     └── run.status.json            … 起動時に RUNNING、終了時に終端状態が書かれる
 #
 #   ProcCompletionChecker の Batch Progress Checker は run.status.json を読んで
-#   1プロセスずつの完了状況を判定する。これが無い場合はログ本文の文言マッチへ
-#   フォールバックするため、本ライブラリの導入前に生成されたログも従来どおり
-#   扱える。
+#   1プロセスずつの状態を判定する。
 #
 # 使い方:
 #   source "$(dirname "${_this_script_path}")/klab-common/run_status.sh"
@@ -34,9 +31,9 @@
 # 設計上の約束:
 #   * 本ライブラリのどの関数も、失敗して呼び出し元の処理を止めてはならない。
 #     すべての関数は 0 を返す（set -e 下で source されることを前提とする）。
-#   * SIGKILL は捕捉できないため run.status.json が残らないことがある。
-#     その場合に備え run.started.json に pid と host を記録しておき、
-#     参照側は「開始済みだが終了記録なし」を検出できるようにする。
+#   * SIGKILL は捕捉できないため、終了時の置換は行われない。その場合は
+#     state=RUNNING の run.status.json が残り、参照側は「開始済みだが終了記録なし」
+#     として扱う。
 #
 # このファイルは全処理リポジトリに同一内容で配置される。将来的に共通リポジトリ
 # へ切り出す前提のため、リポジトリ固有の値をこのファイルへ書き込まないこと。
@@ -101,7 +98,7 @@ _klabRunStatusNow(){
 
 #
 # 説明:
-#   run status の記録を開始する。run.started.json を書き、
+#   run status の記録を開始する。state=RUNNING の run.status.json を書き、
 #   終了時に run.status.json を書く EXIT トラップを仕掛ける。
 #
 # 入力（すべて --key=value 形式。順不同）:
@@ -116,6 +113,7 @@ _klabRunStatusNow(){
 klabRunStatusInit(){
 
     local _argument
+    local _temporary
     for _argument in "$@"; do
         case "${_argument}" in
             --proc-type=*)  KLAB_RUN_STATUS_PROC_TYPE="${_argument#*=}" ;;
@@ -141,10 +139,12 @@ klabRunStatusInit(){
     KLAB_RUN_STATUS_OUTCOME_OVERRIDE=""
     KLAB_RUN_STATUS_MESSAGE=""
     KLAB_RUN_STATUS_ACTIVE="true"
+    _temporary="${KLAB_RUN_STATUS_DIR}/run.status.json.tmp.${BASHPID:-$$}"
 
     {
         printf '{\n'
         printf '  "schemaVersion": %s,\n' "${KLAB_RUN_STATUS_SCHEMA_VERSION}"
+        printf '  "state": "RUNNING",\n'
         printf '  "procType": "%s",\n'    "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_PROC_TYPE}")"
         printf '  "script": "%s",\n'      "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_SCRIPT}")"
         printf '  "datasetId": "%s",\n'   "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_DATASET_ID}")"
@@ -157,7 +157,9 @@ klabRunStatusInit(){
         printf '  "startedAt": "%s",\n'   "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_STARTED_AT}")"
         printf '  "startedAtEpoch": %s\n' "${KLAB_RUN_STATUS_STARTED_EPOCH}"
         printf '}\n'
-    } > "${KLAB_RUN_STATUS_DIR}/run.started.json" 2>/dev/null || true
+    } > "${_temporary}" 2>/dev/null && \
+        mv -f "${_temporary}" "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null
+    rm -f "${_temporary}" 2>/dev/null || true
 
     trap '_klabRunStatusFinalize "$?"' EXIT
 
@@ -275,15 +277,18 @@ _klabRunStatusFinalize(){
     fi
 
     local _finished_epoch
+    local _temporary
     _finished_epoch="$(date +%s 2>/dev/null || echo 0)"
     local _duration=0
     if [[ "${KLAB_RUN_STATUS_STARTED_EPOCH}" =~ ^[0-9]+$ && "${_finished_epoch}" =~ ^[0-9]+$ ]]; then
         _duration=$(( _finished_epoch - KLAB_RUN_STATUS_STARTED_EPOCH ))
     fi
+    _temporary="${KLAB_RUN_STATUS_DIR}/run.status.json.tmp.${BASHPID:-$$}"
 
     {
         printf '{\n'
         printf '  "schemaVersion": %s,\n'   "${KLAB_RUN_STATUS_SCHEMA_VERSION}"
+        printf '  "state": "%s",\n'       "$(_klabRunStatusEscapeJson "${_outcome}")"
         printf '  "procType": "%s",\n'      "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_PROC_TYPE}")"
         printf '  "script": "%s",\n'        "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_SCRIPT}")"
         printf '  "datasetId": "%s",\n'     "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_DATASET_ID}")"
@@ -294,11 +299,12 @@ _klabRunStatusFinalize(){
         printf '  "finishedAt": "%s",\n'    "$(_klabRunStatusEscapeJson "$(_klabRunStatusNow)")"
         printf '  "durationSeconds": %s,\n' "${_duration}"
         printf '  "exitCode": %s,\n'        "${_exit_code}"
-        printf '  "outcome": "%s",\n'       "$(_klabRunStatusEscapeJson "${_outcome}")"
         printf '  "lastStep": "%s",\n'      "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_LAST_STEP}")"
         printf '  "message": "%s"\n'        "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_MESSAGE}")"
         printf '}\n'
-    } > "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null
+    } > "${_temporary}" 2>/dev/null && \
+        mv -f "${_temporary}" "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null
+    rm -f "${_temporary}" 2>/dev/null || true
 
     return 0
 }

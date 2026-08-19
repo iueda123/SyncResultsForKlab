@@ -653,7 +653,7 @@ function sync_results() {
     exec > >(tee -a "${log_file_path}") 2>&1
     echo "ログファイル: ${log_file_path}"
 
-    # 実行結果を機械可読な JSON（run.started.json / run.status.json）として
+    # 実行状態を機械可読な単一の JSON（run.status.json）として
     # PROC_ID ディレクトリに残す。ProcCompletionChecker が完了状況の判定に使う。
     source "$(dirname "${_this_script_path}")/klab-common/run_status.sh"
     klabRunStatusInit \

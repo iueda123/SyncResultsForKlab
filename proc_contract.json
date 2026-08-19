@@ -15,7 +15,10 @@
     "loopVariable": "sbjid",
     "supportsAllSubjectsMode": true,
     "allSubjectsLogSubjectId": "all-subjects",
-    "fileNameIncludesMode": true
+    "fileNameIncludesMode": true,
+    "preScriptLines": [
+      "source \"$(dirname \"$(readlink -f \"${BASH_SOURCE[0]}\")\")/../klab-common/runtime_environment.sh\" || exit 1"
+    ]
   },
   "logLayout": "logs/<dataset_id>/<subject_id>/<proc_id>/",
   "runStatusContract": true,
