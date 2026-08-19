@@ -155,10 +155,12 @@ klabRunStatusInit(){
         printf '  "user": "%s",\n'        "$(_klabRunStatusEscapeJson "$(id -un 2>/dev/null || echo unknown)")"
         printf '  "logFile": "%s",\n'     "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_LOG_FILE}")"
         printf '  "startedAt": "%s",\n'   "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_STARTED_AT}")"
-        printf '  "startedAtEpoch": %s\n' "${KLAB_RUN_STATUS_STARTED_EPOCH}"
+        printf '  "startedAtEpoch": %s,\n' "${KLAB_RUN_STATUS_STARTED_EPOCH}"
+        printf '  "lastStep": "",\n'
+        printf '  "message": ""\n'
         printf '}\n'
     } > "${_temporary}" 2>/dev/null && \
-        mv -f "${_temporary}" "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null
+        mv -f "${_temporary}" "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null || true
     rm -f "${_temporary}" 2>/dev/null || true
 
     trap '_klabRunStatusFinalize "$?"' EXIT
@@ -295,6 +297,9 @@ _klabRunStatusFinalize(){
         printf '  "subjectId": "%s",\n'     "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_SUBJECT_ID}")"
         printf '  "procId": "%s",\n'        "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_PROC_ID}")"
         printf '  "pid": %s,\n'             "$$"
+        printf '  "host": "%s",\n'          "$(_klabRunStatusEscapeJson "$(hostname 2>/dev/null || echo unknown)")"
+        printf '  "user": "%s",\n'          "$(_klabRunStatusEscapeJson "$(id -un 2>/dev/null || echo unknown)")"
+        printf '  "logFile": "%s",\n'       "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_LOG_FILE}")"
         printf '  "startedAt": "%s",\n'     "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_STARTED_AT}")"
         printf '  "finishedAt": "%s",\n'    "$(_klabRunStatusEscapeJson "$(_klabRunStatusNow)")"
         printf '  "durationSeconds": %s,\n' "${_duration}"
@@ -303,7 +308,7 @@ _klabRunStatusFinalize(){
         printf '  "message": "%s"\n'        "$(_klabRunStatusEscapeJson "${KLAB_RUN_STATUS_MESSAGE}")"
         printf '}\n'
     } > "${_temporary}" 2>/dev/null && \
-        mv -f "${_temporary}" "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null
+        mv -f "${_temporary}" "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null || true
     rm -f "${_temporary}" 2>/dev/null || true
 
     return 0
