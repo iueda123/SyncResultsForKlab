@@ -39,6 +39,20 @@
 # へ切り出す前提のため、リポジトリ固有の値をこのファイルへ書き込まないこと。
 #
 
+# --- 資源の計測 -------------------------------------------------------------
+#
+# **ここに差し込むことで、処理スクリプトの側に足す行が無くなる。**
+# 既にすべての処理スクリプトが run-status 契約を通るため。
+# 実体は klab-common/resource_sampler.sh に在る（無ければ何もしない）。
+_klab_rs_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "${_klab_rs_here}/resource_sampler.sh" ]]; then
+    # shellcheck source=resource_sampler.sh
+    source "${_klab_rs_here}/resource_sampler.sh"
+else
+    _klabResourceSamplerStart() { :; }
+    _klabResourceSamplerStop()  { :; }
+fi
+
 KLAB_RUN_STATUS_SCHEMA_VERSION=1
 
 KLAB_RUN_STATUS_DIR=""
@@ -163,6 +177,7 @@ klabRunStatusInit(){
         mv -f "${_temporary}" "${KLAB_RUN_STATUS_DIR}/run.status.json" 2>/dev/null || true
     rm -f "${_temporary}" 2>/dev/null || true
 
+    _klabResourceSamplerStart "${KLAB_RUN_STATUS_DIR}"
     trap '_klabRunStatusFinalize "$?"' EXIT
 
     return 0
@@ -268,6 +283,8 @@ _klabRunStatusFinalize(){
         return 0
     fi
     KLAB_RUN_STATUS_ACTIVE="false"
+    # **要約を書き終えてから run.status.json を書く。**順序を変えない。
+    _klabResourceSamplerStop
 
     local _outcome
     if [[ -n "${KLAB_RUN_STATUS_OUTCOME_OVERRIDE}" ]]; then

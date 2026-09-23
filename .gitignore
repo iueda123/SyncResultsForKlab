@@ -1,3 +1,21 @@
 /batch-scripts/
 /logs/
 .DS_Store
+
+# --- 実行のたびに増えるもの（/logs/ と /batch-scripts/ は上で無視済み）---
+# **コードの木に書き込むものを置かない**（データ配置 spec §4）。ここに出るのは
+# 過去の名残で、消してよい側である。
+*.log
+*.run.log
+work/
+wd/
+tmp/
+tmp_data/
+__pycache__/
+*.pyc
+
+# resource_sampler が残すもの。**本来は runs/ に出る**ので、コードの木に
+# 出ていたらそれは渡し忘れである（--log-root / --log-archive を見直すこと）。
+resources.observed.tsv
+resources.summary.json
+resources.sampler.err
